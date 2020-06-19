@@ -1,8 +1,6 @@
-installed.packages()
-
 library(tidyverse)
 library(rvest)
-setwd('C:/Users/danny/repos/covid19_visuals/')
+# setwd('C:/Users/danny/repos/covid19_visuals/')
 
 # think about github actions for scheduling
 
