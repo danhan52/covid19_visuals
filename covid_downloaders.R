@@ -188,4 +188,4 @@ rm(list = c('covid', 'covid_global', 'covid_us', 'world_pop', 'us_pop',
 
 
 # write_csv(covid_long, 'data/covid_long.csv')
-save(covid_long, file = 'data/covid.RData')
+save(covid_long, file = 'covid.RData')

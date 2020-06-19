@@ -12,8 +12,8 @@ jobs:
       - name: Install tidyverse and rvest
         run: Rscript -e 'install.packages(c("tidyverse", "rvest"))'
       - name: Repull data
-        run: Rscript -e 'source("covid_downloaders.R")'
+        run: Rscript -f covid_downloaders.R
       - name: Commit results
         run: |
-          git commit data/covid.Rdata -m 'Update data' || echo "No changes to commit"
+          git commit covid.Rdata -m 'Update data' || echo "No changes to commit"
           git push origin || echo "No changes to commit"
