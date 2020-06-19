@@ -182,7 +182,9 @@ covid_long <-
   ungroup() %>%
   filter(!is.na(date))
 
-write_csv(covid_long, 'data/covid_long.csv')
-save(covid_long, file = 'data/covid.RData')
+rm(list = c('covid', 'covid_global', 'covid_us', 'world_pop', 'us_pop', 
+            'china_pop', 'canada_pop', 'australia_pop'))
 
-rm(list = setdiff(ls(), c('covid_long')))
+
+# write_csv(covid_long, 'data/covid_long.csv')
+# save(covid_long, file = 'data/covid.RData')
