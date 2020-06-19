@@ -1,9 +1,6 @@
-on:
-  push:
-    paths:
-      - covid_downloader.R
-
 name: Update data
+on: [push]
+
 
 jobs:
   render:
