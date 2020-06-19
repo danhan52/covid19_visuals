@@ -15,5 +15,7 @@ jobs:
         run: Rscript covid_downloaders.R
       - name: Commit results
         run: |
-          git commit covid.Rdata -m 'Update data' || echo "No changes to commit"
+          git status
+          git add covid.Rdata || echo "No changes to commit"
+          git commit -m 'Update data' || echo "No changes to commit"
           git push origin || echo "No changes to commit"
