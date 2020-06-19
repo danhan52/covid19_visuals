@@ -3,7 +3,7 @@ library(plotly)
 library(tidyverse)
 library(lubridate)
 options(scipen = 100)
-setwd('C:/Users/danny/repos/covid19_visuals/')
+# setwd('C:/Users/danny/repos/covid19_visuals/')
 
 # load('data/covid.RData')
 load(url('https://raw.githubusercontent.com/danhan52/covid19_visuals/master/data/covid.RData'))

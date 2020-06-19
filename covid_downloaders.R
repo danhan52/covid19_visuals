@@ -1,7 +1,10 @@
+installed.packages()
+
 library(tidyverse)
-library(lubridate)
 library(rvest)
 setwd('C:/Users/danny/repos/covid19_visuals/')
+
+# think about github actions for scheduling
 
 # US COVID-19 data ####
 # https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/
@@ -187,4 +190,4 @@ rm(list = c('covid', 'covid_global', 'covid_us', 'world_pop', 'us_pop',
 
 
 # write_csv(covid_long, 'data/covid_long.csv')
-# save(covid_long, file = 'data/covid.RData')
+save(covid_long, file = 'data/covid.RData')
