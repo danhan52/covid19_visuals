@@ -1,2 +1,2 @@
 # covid19_visuals
-A place for covid-19 visuals created by me
+A place for covid-19 visuals created by me 
