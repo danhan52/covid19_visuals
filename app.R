@@ -5,7 +5,8 @@ library(lubridate)
 options(scipen = 100)
 setwd('C:/Users/danny/repos/covid19_visuals/')
 
-load('data/covid.RData')
+# load('data/covid.RData')
+load(url('https://raw.githubusercontent.com/danhan52/covid19_visuals/master/data/covid.RData'))
 
 ui <- fluidPage(
     title = paste('COVID-19 Visualizer -', max(covid_long$date)),
@@ -63,7 +64,7 @@ ui <- fluidPage(
                numericInput(
                    inputId = 'h',
                    label = 'Plot height',
-                   value = 800
+                   value = 700
                ),
                actionButton(
                    inputId = 'refresh',
