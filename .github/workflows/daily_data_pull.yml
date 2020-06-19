@@ -1,5 +1,8 @@
 name: Update data
-on: [push]
+on:
+  schedule:
+    - cron:  '0 3 * * *'
+
 
 
 jobs:
@@ -15,6 +18,5 @@ jobs:
         run: Rscript covid_downloaders.R
       - name: Commit results
         run: |
-          git status
           git commit data/covid.RData -m 'Update data' || echo "No changes to commit"
           git push origin || echo "No changes to commit"
