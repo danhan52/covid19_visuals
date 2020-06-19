@@ -16,6 +16,5 @@ jobs:
       - name: Commit results
         run: |
           git status
-          git add covid.Rdata || echo "No changes to commit"
-          git commit -m 'Update data' || echo "No changes to commit"
+          git commit data/covid.RData -m 'Update data' || echo "No changes to commit"
           git push origin || echo "No changes to commit"
