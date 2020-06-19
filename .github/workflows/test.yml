@@ -3,11 +3,11 @@ on:
     paths:
       - covid_downloader.R
 
-name: Update data
+name: Test data
 
 jobs:
   render:
-    name: Update data
+    name: Test data
     runs-on: macOS-latest
     steps:
       - uses: actions/checkout@v2
