@@ -65,10 +65,6 @@ ui <- fluidPage(
                    inputId = 'h',
                    label = 'Plot height',
                    value = 700
-               ),
-               actionButton(
-                   inputId = 'refresh',
-                   'Refresh Data (>30 seconds)'
                )
         )
     ),
@@ -108,11 +104,6 @@ server <- function(input, output) {
         }
         
         ggplotly(line_plt, width = input$w, height = input$h)
-    })
-    
-    new_data <- observeEvent(input$refresh, {
-        print(paste('refreshing', input$refresh))
-        source('covid_downloaders.R')
     })
 }
 
