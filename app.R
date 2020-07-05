@@ -100,7 +100,8 @@ server <- function(input, output) {
         if (input$change) {
             line_plt <-
                 line_plt +
-                geom_bar(aes(y = delta), stat = 'identity')
+                geom_point(aes(y = delta), stat = 'identity') +
+                geom_smooth(aes(y = delta), method = 'loess', formula = y ~ x)
         }
         
         ggplotly(line_plt, width = input$w, height = input$h)

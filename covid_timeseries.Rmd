@@ -1,0 +1,306 @@
+---
+title: "COVID-19 by location"
+author: "Danny Hanson"
+date: "6/19/2020"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE
+)
+```
+
+## The Data
+All COVID-19 data comes from the [John's Hopkins CSSE repository](https://github.com/CSSEGISandData/COVID-19/). The population data was pulled from the following sources:
+- [United State Census](https://www.census.gov/data/datasets/time-series/demo/popest/2010s-counties-total.html)
+- [Canada Population](https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1710000901)
+- [Australia Population](https://www.worldatlas.com/articles/the-largest-states-and-territories-of-australia.html)
+- [China Population](https://www.worldatlas.com/articles/chinese-provinces-by-population.html)
+- [World Population](https://worldpopulationreview.com/)
+
+The script for pulling/joining/cleaning the data can be [found on my github](https://github.com/danhan52/covid19_visuals/blob/master/covid_downloaders.R) and the data itself can also be [pulled from github](https://raw.githubusercontent.com/danhan52/covid19_visuals/master/data/covid.RData).
+
+```{r load_data}
+library(shiny)
+library(plotly)
+library(tidyverse)
+library(lubridate)
+library(kableExtra)
+options(scipen = 100)
+
+load(url('https://raw.githubusercontent.com/danhan52/covid19_visuals/master/data/covid.RData'))
+
+covid <-
+  covid_long %>%
+  group_by(loc, loc_type, metric) %>%
+  mutate(
+    delta = people - lag(people, order_by = date, default = 0),
+    people_per = round(people / pop * 1000, 2),
+    delta_per = round(delta / pop * 1000, 2)
+  ) %>%
+  ungroup()
+```
+
+## Most Recent Data
+Below is the most up to date data for the locations shown below.
+```{r}
+covid %>%
+  filter(
+    loc %in% c('Minnesota', 'Quebec', 'Cyprus', 'Japan', 'Grand Traverse County, Michigan'),
+    date == max(date)
+  ) %>%
+  pivot_wider(names_from = metric, values_from = c(people, delta, people_per, delta_per)) %>%
+  select(
+    Date = date,
+    Location = loc,
+    Population = pop,
+    'Confirmed Cases' = people_confirmed,
+    'Deaths' = people_deaths,
+    'Increase in Confirmed Cases' = delta_confirmed,
+    'Increase in Deaths' = delta_deaths,
+    'Confirmed Cases (per 1000 people)' = people_per_confirmed,
+    'Deaths (per 1000 people)' = people_per_deaths
+  ) %>%
+  kable() %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+## COVID-19 Cases/Deaths {.tabset .tabset-fade .tabset-pills}
+### Confirmed Cases
+Below you can see the number of total (cumulative) cases over time.
+```{r cases_tot}
+p_ct <-
+  covid %>%
+  filter(
+    loc %in% c('Minnesota', 'Quebec', 'Cyprus', 'Japan', 'Grand Traverse County, Michigan'),
+    metric %in% 'confirmed'
+  ) %>%
+  ggplot(aes(x = date, color = loc)) +
+  geom_line(aes(y = people))
+ggplotly(p_ct, width = 800, height = 500)
+```
+
+Below is the daily change in number of cases with a smoothed curve
+```{r cases_chng}
+p_cc <-
+  covid %>%
+  filter(
+    loc %in% c('Minnesota', 'Quebec', 'Cyprus', 'Japan', 'Grand Traverse County, Michigan'),
+    metric %in% 'confirmed'
+  ) %>%
+  ggplot(aes(x = date, color = loc)) +
+  geom_point(aes(y = delta), stat = 'identity') +
+  geom_smooth(aes(y = delta))
+ggplotly(p_cc, width = 800, height = 500)
+```
+
+### Deaths
+Below you can see the number of total (cumulative) deaths over time.
+
+```{r death_tot}
+p_ct <-
+  covid %>%
+  filter(
+    loc %in% c('Minnesota', 'Quebec', 'Cyprus', 'Japan', 'Grand Traverse County, Michigan'),
+    metric %in% 'deaths'
+  ) %>%
+  ggplot(aes(x = date, color = loc)) +
+  geom_line(aes(y = people))
+ggplotly(p_ct, width = 800, height = 500)
+```
+
+Below is the daily change in number of deaths with a smoothed curve
+```{r death_chng}
+p_cc <-
+  covid %>%
+  filter(
+    loc %in% c('Minnesota', 'Quebec', 'Cyprus', 'Japan', 'Grand Traverse County, Michigan'),
+    metric %in% 'deaths'
+  ) %>%
+  ggplot(aes(x = date, color = loc)) +
+  geom_point(aes(y = delta), stat = 'identity') +
+  geom_smooth(aes(y = delta))
+ggplotly(p_cc, width = 800, height = 500)
+```
+
+### Confirmed Cases per 1000 people
+Below you can see the number of total (cumulative) cases per 1000 people over time.
+```{r cases_tot_per}
+p_ct <-
+  covid %>%
+  filter(
+    loc %in% c('Minnesota', 'Quebec', 'Cyprus', 'Japan', 'Grand Traverse County, Michigan'),
+    metric %in% 'confirmed'
+  ) %>%
+  ggplot(aes(x = date, color = loc)) +
+  geom_line(aes(y = people_per))
+ggplotly(p_ct, width = 800, height = 500)
+```
+
+Below is the daily change in number of cases per 1000 people with a smoothed curve
+```{r cases_chng_per}
+p_cc <-
+  covid %>%
+  filter(
+    loc %in% c('Minnesota', 'Quebec', 'Cyprus', 'Japan', 'Grand Traverse County, Michigan'),
+    metric %in% 'confirmed'
+  ) %>%
+  ggplot(aes(x = date, color = loc)) +
+  geom_point(aes(y = delta_per), stat = 'identity') +
+  geom_smooth(aes(y = delta_per))
+ggplotly(p_cc, width = 800, height = 500)
+```
+
+### Deaths per 1000 people
+Below you can see the number of total (cumulative) deaths per 1000 people over time.
+
+```{r death_tot_per}
+p_ct <-
+  covid %>%
+  filter(
+    loc %in% c('Minnesota', 'Quebec', 'Cyprus', 'Japan', 'Grand Traverse County, Michigan'),
+    metric %in% 'confirmed'
+  ) %>%
+  ggplot(aes(x = date, color = loc)) +
+  geom_line(aes(y = people_per))
+ggplotly(p_ct, width = 800, height = 500)
+```
+
+Below is the daily change in number of deaths per 1000 people with a smoothed curve
+```{r death_chng_per}
+p_cc <-
+  covid %>%
+  filter(
+    loc %in% c('Minnesota', 'Quebec', 'Cyprus', 'Japan', 'Grand Traverse County, Michigan'),
+    metric %in% 'confirmed'
+  ) %>%
+  ggplot(aes(x = date, color = loc)) +
+  geom_point(aes(y = delta_per), stat = 'identity') +
+  geom_smooth(aes(y = delta_per))
+ggplotly(p_cc, width = 800, height = 500)
+```
+
+
+```{r}
+covid_us <- 
+  c('confirmed' = 'confirmed', 'deaths' = 'deaths') %>%
+  map(
+    function(x) {
+      paste0(
+        'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/',
+        'master/csse_covid_19_data/csse_covid_19_time_series/',
+        'time_series_covid19_',
+        x,
+        '_US.csv'
+      )
+    }
+  ) %>%
+  map_df(function(x) read_csv(url(x)), .id = 'metric') %>%
+  pivot_longer(cols = `1/22/20`:last_col(),
+               names_to = 'date',
+               values_to = 'people') %>%
+  mutate(
+    fipstr = str_pad(FIPS, 5, 'left', '0'),
+    date = as.Date(date, format = '%m/%d/%y')
+  )
+
+# https://www.census.gov/data/datasets/time-series/demo/popest/2010s-counties-total.html#par_textimage_70769902
+us_pop <-
+  read_csv(url(paste0('https://www2.census.gov/programs-surveys/popest/',
+                      'datasets/2010-2019/counties/totals/',
+                      'co-est2019-alldata.csv'))) %>%
+  rename_all(tolower) %>%
+  select(stname, ctyname, popestimate2019, state, county) %>%
+  mutate(
+    ctyname = str_replace(ctyname, ' County', ''),
+    fipstr = paste0(state, county)
+  )
+
+covid_us <-
+  covid_us %>%
+  left_join(us_pop, by = 'fipstr') %>%
+  group_by(metric, fipstr) %>%
+  mutate(delta = people - lag(people, order_by = date, default = 0)) %>%
+  ungroup()
+
+
+url <- 'https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json'
+url <- 'https://raw.githubusercontent.com/plotly/datasets/master/geojson-states-fips.json'
+counties <- rjson::fromJSON(file=url)
+df <-
+  covid_us %>%
+  filter(metric == 'confirmed', date == max(date, na.rm = T), delta >= 0)
+fig <- plot_ly(data = df) %>%
+  add_trace(
+    type="choroplethmapbox",
+    geojson=counties,
+    locations=~fipstr,
+    z=~delta,
+    # colorscale="Viridis",
+    # zmin=0,
+    # zmax=max(df$people, na.rm = T),
+    marker=list(line=list(
+      width=0),
+      opacity=0.5
+    )
+  ) %>% layout(
+    mapbox=list(
+      style="carto-positron",
+      zoom =2,
+      center=list(lon= -95.71, lat=37.09))
+  )
+# fig
+
+county_df <- map_data("county")
+state_df <- map_data("state")
+
+covid_us_plt <-
+  covid_us %>%
+  filter(metric == 'confirmed', date == max(date, na.rm = T)) %>%
+  mutate(join_cty = tolower(Admin2), join_st = tolower(Province_State)) %>%
+  inner_join(county_df, by = c('join_cty'='subregion', 'join_st'='region'))
+
+covid_us_plt <-
+  covid_us %>%
+  filter(metric == 'confirmed', date == max(date, na.rm = T)) %>%
+  group_by(Province_State, Country_Region, metric, date) %>%
+  summarize(
+    people = sum(people, na.rm = T),
+    delta = sum(delta, na.rm = T),
+    popestimate2019 = sum(popestimate2019, na.rm = T)
+  ) %>%
+  ungroup() %>%
+  mutate(join_st = tolower(Province_State)) %>%
+  inner_join(state_df, by = c('join_st'='region'))
+
+# create state boundaries
+p <- ggplot(covid_us_plt, aes(long, lat, group = group, fill = delta)) +
+  geom_polygon(colour = alpha("black", 1/2)) +
+  # geom_polygon(data = state_df, colour = "black", fill = NA) + 
+  theme_void() +
+  scale_fill_viridis_c(direction = -1)
+
+ggplotly(p)
+
+covid_us %>%
+  filter(metric == 'confirmed', date == max(date, na.rm = T), Province_State %in% c('Minnesota', 'Michigan')) %>%
+  select(Province_State, Admin2, people, delta, everything())
+
+nyt_covid <-
+  read_csv(url('https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv')) %>%
+  left_join(us_pop, by = c('fips'='fipstr'))
+
+nyt_covid %>%
+  filter(`state.x` == 'Michigan') %>%
+  distinct(`county.x`) %>%
+  arrange(`county.x`)
+```
+
